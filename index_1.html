@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DigiDas — Digital Products Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --accent: #f5a623;
+    --accent2: #e85d75;
+    --accent3: #7c6aff;
+    --text: #f0ede8;
+    --muted: #8a8799;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* GLOW ORBS */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(124,106,255,0.12); top: -100px; right: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(245,166,35,0.08); bottom: 200px; left: -100px; }
+  .orb3 { width: 300px; height: 300px; background: rgba(232,93,117,0.08); top: 50%; right: 10%; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(20px);
+    background: rgba(10,10,15,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .nav-cta {
+    background: var(--accent);
+    color: #0a0a0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 10px 20px;
+    border-radius: 100px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,166,35,0.3); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 160px 40px 100px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,106,255,0.12);
+    border: 1px solid rgba(124,106,255,0.25);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #a89fff;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge::before { content: '✦'; font-size: 0.6rem; }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    animation: fadeUp 0.6s 0.1s ease both;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 .line2 { color: var(--accent); }
+  .hero h1 .line3 {
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s 0.2s ease both;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .stat-item { }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  /* DIVIDER */
+  .section-divider {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* PRODUCTS GRID */
+  .products-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 100px;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .product-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.14);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .product-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 20px;
+  }
+
+  .product-card:hover::before { opacity: 1; }
+
+  /* Card color accents */
+  .card-trading::before { background: radial-gradient(circle at top right, rgba(245,166,35,0.06), transparent 60%); }
+  .card-ai::before { background: radial-gradient(circle at top right, rgba(124,106,255,0.08), transparent 60%); }
+  .card-canva::before { background: radial-gradient(circle at top right, rgba(232,93,117,0.06), transparent 60%); }
+  .card-kundli::before { background: radial-gradient(circle at top right, rgba(100,200,150,0.06), transparent 60%); }
+  .card-psych::before { background: radial-gradient(circle at top right, rgba(245,166,35,0.06), transparent 60%); }
+  .card-exam::before { background: radial-gradient(circle at top right, rgba(124,106,255,0.08), transparent 60%); }
+  .card-numerology::before { background: radial-gradient(circle at top right, rgba(255,180,100,0.06), transparent 60%); }
+  .card-tarot::before { background: radial-gradient(circle at top right, rgba(200,100,255,0.06), transparent 60%); }
+  .card-manifest::before { background: radial-gradient(circle at top right, rgba(100,220,200,0.06), transparent 60%); }
+
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .card-category {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .cat-finance { color: var(--accent); }
+  .cat-ai { color: #a89fff; }
+  .cat-design { color: var(--accent2); }
+  .cat-spiritual { color: #64c896; }
+  .cat-psych { color: #f5a623; }
+  .cat-edu { color: #a89fff; }
+  .cat-mystic { color: #d4a0ff; }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 28px;
+    font-weight: 300;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .price-trading { color: var(--accent); }
+  .price-ai { color: #a89fff; }
+  .price-design { color: var(--accent2); }
+  .price-spiritual { color: #64c896; }
+  .price-psych { color: var(--accent); }
+  .price-edu { color: #a89fff; }
+  .price-mystic { color: #d4a0ff; }
+
+  .buy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 100px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-trading { background: var(--accent); color: #0a0a0f; }
+  .btn-ai { background: rgba(124,106,255,0.15); color: #a89fff; border: 1px solid rgba(124,106,255,0.3); }
+  .btn-design { background: rgba(232,93,117,0.15); color: var(--accent2); border: 1px solid rgba(232,93,117,0.3); }
+  .btn-spiritual { background: rgba(100,200,150,0.15); color: #64c896; border: 1px solid rgba(100,200,150,0.3); }
+  .btn-psych { background: rgba(245,166,35,0.15); color: var(--accent); border: 1px solid rgba(245,166,35,0.3); }
+  .btn-edu { background: rgba(124,106,255,0.15); color: #a89fff; border: 1px solid rgba(124,106,255,0.3); }
+  .btn-mystic { background: rgba(212,160,255,0.15); color: #d4a0ff; border: 1px solid rgba(212,160,255,0.3); }
+
+  .buy-btn:hover { transform: scale(1.04); filter: brightness(1.15); }
+
+  .card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(232,93,117,0.15);
+    border: 1px solid rgba(232,93,117,0.3);
+    color: var(--accent2);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  /* FEATURED CARD — spans 2 cols */
+  .card-featured {
+    grid-column: span 2;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .card-featured .card-content { flex: 1; }
+  .card-featured .card-visual {
+    flex: 0 0 180px;
+    height: 180px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.15);
+  }
+
+  /* TRUST SECTION */
+  .trust-section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 120px;
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .trust-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+  }
+
+  .trust-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .trust-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+  .trust-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-tagline { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+  .footer-contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .footer-contact:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 420px;
+    width: 100%;
+    transform: translateY(20px);
+    transition: transform 0.25s;
+  }
+  .modal-overlay.active .modal { transform: translateY(0); }
+
+  .modal-icon { font-size: 2.5rem; margin-bottom: 16px; }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .modal-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  .modal-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; margin-bottom: 28px; font-weight: 300; }
+
+  .modal-actions { display: flex; flex-direction: column; gap: 12px; }
+
+  .modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-upi { background: var(--accent); color: #0a0a0f; }
+  .btn-upi:hover { box-shadow: 0 8px 24px rgba(245,166,35,0.3); }
+  .btn-wa { background: rgba(37,211,102,0.15); color: #25d366; border: 1px solid rgba(37,211,102,0.3); }
+  .btn-wa:hover { background: rgba(37,211,102,0.25); }
+  .btn-close { background: var(--surface); color: var(--muted); border: 1px solid var(--border); margin-top: 4px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .product-card:nth-child(1) { animation-delay: 0.05s; }
+  .product-card:nth-child(2) { animation-delay: 0.10s; }
+  .product-card:nth-child(3) { animation-delay: 0.15s; }
+  .product-card:nth-child(4) { animation-delay: 0.20s; }
+  .product-card:nth-child(5) { animation-delay: 0.25s; }
+  .product-card:nth-child(6) { animation-delay: 0.30s; }
+  .product-card:nth-child(7) { animation-delay: 0.35s; }
+  .product-card:nth-child(8) { animation-delay: 0.40s; }
+  .product-card:nth-child(9) { animation-delay: 0.45s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-tag { display: none; }
+    .hero { padding: 120px 20px 60px; }
+    .hero h1 { font-size: 3rem; }
+    .hero-stats { gap: 24px; }
+    .products-section { padding: 0 20px 60px; }
+    .products-grid { grid-template-columns: 1fr; }
+    .card-featured { grid-column: span 1; flex-direction: column; }
+    .card-featured .card-visual { width: 100%; flex: none; }
+    .trust-section { padding: 0 20px 80px; }
+    .trust-grid { grid-template-columns: 1fr; }
+    .section-divider { padding: 0 20px; }
+    footer { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Digi<span>Das</span></div>
+  <div class="nav-right">
+    <span class="nav-tag">Digital Products</span>
+    <a href="#products" class="nav-cta">Browse Store →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">India's Digital Knowledge Store</div>
+  <h1>
+    Knowledge<br>
+    <span class="line2">Packaged.</span><br>
+    <span class="line3">Delivered.</span>
+  </h1>
+  <p class="hero-sub">
+    Premium digital products in Hindi & English — trading guides, astrology reports, AI tools, psychology insights aur bahut kuch. Instant delivery.
+  </p>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">9+</div>
+      <div class="stat-label">Digital Products</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">₹49</div>
+      <div class="stat-label">Starting From</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Digital Delivery</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<div class="section-divider">
+  <span class="section-label">✦ All Products</span>
+</div>
+
+<section class="products-section" id="products">
+  <div class="products-grid">
+
+    <!-- 1. Trading Ebook - FEATURED -->
+    <div class="product-card card-trading card-featured" onclick="openModal('trading')">
+      <div class="card-content">
+        <span class="card-icon">📈</span>
+        <div class="card-category cat-finance">Finance & Trading</div>
+        <div class="card-title">Secret Trading Strategies 2025</div>
+        <div class="card-desc">7 powerful setups for beginners — Hinglish mein likhi simple guide jo aapko stock market mein sahi decisions lene mein help karegi. Charts, patterns, aur real examples ke saath.</div>
+        <div class="card-footer">
+          <div class="card-price price-trading">₹199</div>
+          <button class="buy-btn btn-trading">Get Ebook →</button>
+        </div>
+      </div>
+      <div class="card-visual">📈</div>
+      <div class="card-badge">Bestseller</div>
+    </div>
+
+    <!-- 2. AI Prompt Pack -->
+    <div class="product-card card-ai" onclick="openModal('ai')">
+      <span class="card-icon">🤖</span>
+      <div class="card-category cat-ai">AI & Productivity</div>
+      <div class="card-title">Ultimate AI Prompt Pack</div>
+      <div class="card-desc">100+ ready-made prompts for ChatGPT, Claude & Gemini — content creation, business, side income, aur daily life ke liye. Copy-paste karo aur results lo.</div>
+      <div class="card-footer">
+        <div class="card-price price-ai">₹149</div>
+        <button class="buy-btn btn-ai">Get Prompts →</button>
+      </div>
+      <div class="card-badge">Hot 🔥</div>
+    </div>
+
+    <!-- 3. Canva Templates -->
+    <div class="product-card card-canva" onclick="openModal('canva')">
+      <span class="card-icon">🎨</span>
+      <div class="card-category cat-design">Design & Canva</div>
+      <div class="card-title">Canva Templates Pack</div>
+      <div class="card-desc">50+ premium Canva templates — Instagram posts, YouTube thumbnails, business cards, aur reels covers. Ek click mein customize karo, professional look guaranteed.</div>
+      <div class="card-footer">
+        <div class="card-price price-design">₹99</div>
+        <button class="buy-btn btn-design">Get Templates →</button>
+      </div>
+    </div>
+
+    <!-- 4. Kundli Report -->
+    <div class="product-card card-kundli" onclick="openModal('kundli')">
+      <span class="card-icon">🔮</span>
+      <div class="card-category cat-spiritual">Vedic Astrology</div>
+      <div class="card-title">Personalized Kundli Report</div>
+      <div class="card-desc">Detailed Vedic astrology report — lagna, graha sthiti, mahadasha analysis, aur upcoming 2 saal ka career & life forecast. Aapki DOB se banaya gaya personal report.</div>
+      <div class="card-footer">
+        <div class="card-price price-spiritual">₹299</div>
+        <button class="buy-btn btn-spiritual">Order Report →</button>
+      </div>
+      <div class="card-badge">Premium ✨</div>
+    </div>
+
+    <!-- 5. Psychology Guide -->
+    <div class="product-card card-psych" onclick="openModal('psych')">
+      <span class="card-icon">🧠</span>
+      <div class="card-category cat-psych">Psychology</div>
+      <div class="card-title">Log Kya Soch Rahe Hain</div>
+      <div class="card-desc">Body language aur psychology ki Hinglish guide — kaise pehchano koi kya feel kar raha hai, interview mein confident dikhna, aur conversations master karna.</div>
+      <div class="card-footer">
+        <div class="card-price price-psych">₹99</div>
+        <button class="buy-btn btn-psych">Get Guide →</button>
+      </div>
+    </div>
+
+    <!-- 6. Exam Notes -->
+    <div class="product-card card-exam" onclick="openModal('exam')">
+      <span class="card-icon">📚</span>
+      <div class="card-category cat-edu">Education</div>
+      <div class="card-title">Govt Clerk Exam Notes Pack</div>
+      <div class="card-desc">BCCL / Coal India clerk exam ke liye curated notes — GK, reasoning, English, aur current affairs. Concise aur exam-focused, ek hi PDF mein sab kuch.</div>
+      <div class="card-footer">
+        <div class="card-price price-edu">₹49</div>
+        <button class="buy-btn btn-edu">Get Notes →</button>
+      </div>
+    </div>
+
+    <!-- 7. Numerology -->
+    <div class="product-card card-numerology" onclick="openModal('numerology')">
+      <span class="card-icon">🔢</span>
+      <div class="card-category cat-mystic">Numerology</div>
+      <div class="card-title">Numerology Life Report</div>
+      <div class="card-desc">Apni date of birth se janiye apna life path number, destiny number aur lucky years. Personality traits, career suggestions aur relationship compatibility saath mein.</div>
+      <div class="card-footer">
+        <div class="card-price price-mystic">₹149</div>
+        <button class="buy-btn btn-mystic">Order Report →</button>
+      </div>
+    </div>
+
+    <!-- 8. Tarot -->
+    <div class="product-card card-tarot" onclick="openModal('tarot')">
+      <span class="card-icon">🃏</span>
+      <div class="card-category cat-mystic">Tarot Reading</div>
+      <div class="card-title">Tarot Card Reading (PDF)</div>
+      <div class="card-desc">Apna ek sawal bhejo — career, love, ya life decisions ke baare mein — aur paaye detailed tarot reading PDF mein, 24 ghante ke andar.</div>
+      <div class="card-footer">
+        <div class="card-price price-mystic">₹99</div>
+        <button class="buy-btn btn-mystic">Book Reading →</button>
+      </div>
+    </div>
+
+    <!-- 9. Manifestation Journal -->
+    <div class="product-card card-manifest" onclick="openModal('manifest')">
+      <span class="card-icon">✨</span>
+      <div class="card-category cat-spiritual">Manifestation</div>
+      <div class="card-title">Manifestation Journal Template</div>
+      <div class="card-desc">Printable Canva journal — daily affirmations, gratitude log, goal tracker aur law of attraction exercises. 30 pages, beautifully designed, lifetime access.</div>
+      <div class="card-footer">
+        <div class="card-price price-spiritual">₹79</div>
+        <button class="buy-btn btn-spiritual">Get Journal →</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TRUST -->
+<div class="section-divider">
+  <span class="section-label">✦ Why DigiDas</span>
+</div>
+
+<section class="trust-section">
+  <div class="trust-grid">
+    <div class="trust-card">
+      <div class="trust-icon">⚡</div>
+      <div class="trust-title">Instant Delivery</div>
+      <div class="trust-desc">Payment ke baad PDF seedha aapke WhatsApp ya email pe. Koi wait nahi.</div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">🇮🇳</div>
+      <div class="trust-title">Made for India</div>
+      <div class="trust-desc">Hinglish mein content, UPI se payment — bilkul apna sa experience.</div>
+    </div>
+    <div class="trust-card">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-title">Secure Payment</div>
+      <div class="trust-desc">UPI / QR code se direct payment — no middleman, fully safe.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Digi<span>Das</span></div>
+  <div class="footer-tagline">Knowledge delivered digitally — India's own store</div>
+  <a href="https://wa.me/919296455514" class="footer-contact" target="_blank">
+    💬 Contact on WhatsApp
+  </a>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">📈</div>
+    <div class="modal-title" id="modal-title">Product Name</div>
+    <div class="modal-price" id="modal-price">₹199</div>
+    <div class="modal-desc" id="modal-desc">Description here</div>
+    <div class="modal-actions">
+      <a href="#" class="modal-btn btn-upi" id="modal-upi-btn" target="_blank">⚡ Pay via UPI & Get Instantly</a>
+      <a href="#" class="modal-btn btn-wa" id="modal-wa-btn" target="_blank">💬 Order via WhatsApp</a>
+      <button class="modal-btn btn-close" onclick="closeModal()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const products = {
+    trading: {
+      icon: '📈',
+      title: 'Secret Trading Strategies 2025',
+      price: '₹199',
+      desc: '7 proven trading setups Hinglish mein. Beginners ke liye perfect — charts, patterns aur real examples ke saath. Payment ke baad PDF turant milegi.',
+      wa: 'Hii DigiDas! Main Trading Ebook kharidna chahta hoon (₹199). Please UPI details bhejo.'
+    },
+    ai: {
+      icon: '🤖',
+      title: 'Ultimate AI Prompt Pack',
+      price: '₹149',
+      desc: '100+ ready-made AI prompts — ChatGPT, Claude & Gemini ke liye. Instantly use karo business, content aur daily life mein.',
+      wa: 'Hii DigiDas! Main AI Prompt Pack kharidna chahta hoon (₹149). Please UPI details bhejo.'
+    },
+    canva: {
+      icon: '🎨',
+      title: 'Canva Templates Pack',
+      price: '₹99',
+      desc: '50+ premium Canva templates — Instagram, YouTube thumbnails, business cards. Ek click edit, professional results.',
+      wa: 'Hii DigiDas! Main Canva Templates Pack kharidna chahta hoon (₹99). Please UPI details bhejo.'
+    },
+    kundli: {
+      icon: '🔮',
+      title: 'Personalized Kundli Report',
+      price: '₹299',
+      desc: 'Apni DOB, time aur place bhejo — 24–48 hrs mein detailed Vedic astrology report milegi PDF mein. Mahadasha, career, life forecast sab included.',
+      wa: 'Hii DigiDas! Mujhe Personalized Kundli Report chahiye (₹299). Aage kya karna hai batao.'
+    },
+    psych: {
+      icon: '🧠',
+      title: 'Log Kya Soch Rahe Hain',
+      price: '₹99',
+      desc: 'Body language aur psychology guide Hinglish mein. Koi kya feel kar raha hai yeh samjho, interviews ace karo, conversations master karo.',
+      wa: 'Hii DigiDas! Main Psychology Guide kharidna chahta hoon (₹99). Please UPI details bhejo.'
+    },
+    exam: {
+      icon: '📚',
+      title: 'Govt Clerk Exam Notes Pack',
+      price: '₹49',
+      desc: 'BCCL / Govt clerk exam ke liye curated notes — GK, reasoning, English. Concise, exam-focused, ek PDF mein sab.',
+      wa: 'Hii DigiDas! Main Exam Notes Pack kharidna chahta hoon (₹49). Please UPI details bhejo.'
+    },
+    numerology: {
+      icon: '🔢',
+      title: 'Numerology Life Report',
+      price: '₹149',
+      desc: 'DOB se nikalo life path number, destiny number aur lucky years. Career, relationships aur upcoming opportunities ka analysis.',
+      wa: 'Hii DigiDas! Mujhe Numerology Report chahiye (₹149). Aage kya karna hai batao.'
+    },
+    tarot: {
+      icon: '🃏',
+      title: 'Tarot Card Reading',
+      price: '₹99',
+      desc: 'Apna ek sawal WhatsApp pe bhejo — career, love ya life ke baare mein. 24 ghante mein detailed tarot reading PDF milegi.',
+      wa: 'Hii DigiDas! Mujhe Tarot Reading chahiye (₹99). Apna question aage bhejta hoon.'
+    },
+    manifest: {
+      icon: '✨',
+      title: 'Manifestation Journal Template',
+      price: '₹79',
+      desc: '30-page printable journal — daily affirmations, gratitude log, goal tracker. Canva mein edit karo, print karo ya digitally use karo.',
+      wa: 'Hii DigiDas! Main Manifestation Journal kharidna chahta hoon (₹79). Please UPI details bhejo.'
+    }
+  };
+
+  const YOUR_PHONE = '919296455514'; // Akash ka number
+
+  function openModal(key) {
+    const p = products[key];
+    document.getElementById('modal-icon').textContent = p.icon;
+    document.getElementById('modal-title').textContent = p.title;
+    document.getElementById('modal-price').textContent = p.price;
+    document.getElementById('modal-desc').textContent = p.desc;
+    document.getElementById('modal-wa-btn').href = `https://wa.me/${YOUR_PHONE}?text=${encodeURIComponent(p.wa)}`;
+    document.getElementById('modal-upi-btn').href = `upi://pay?pa=aakashdas007@oksbi&pn=DigiDas&am=${p.price.replace('₹','')}&cu=INR&tn=${encodeURIComponent(p.title)}`;
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
